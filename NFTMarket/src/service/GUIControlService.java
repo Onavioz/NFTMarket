@@ -1,6 +1,5 @@
 package service;
 
-import java.io.IOException;
 import java.util.Optional;
 import resources.Constants;
 import javafx.application.Platform;
@@ -16,7 +15,7 @@ public class GUIControlService {
 	public static GUIControlService instance = new GUIControlService();
 	private Object viewModel;
 	private Stage primaryStage;
-	public static boolean res; // Checked whether yes or no pressed.
+	public static boolean msgResult; // Checked whether yes or no pressed.
 
 	private GUIControlService() {
 	}
@@ -117,9 +116,9 @@ public class GUIControlService {
 		alert.setHeaderText("");
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.YES) {
-			res = true;
+			msgResult = true;
 		} else {
-			res = false;
+			msgResult = false;
 		}
 	}
 
