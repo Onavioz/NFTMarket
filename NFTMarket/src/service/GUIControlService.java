@@ -56,7 +56,7 @@ public class GUIControlService {
 
 	/*
 	 * method that displays an error message in an alert
-	 * 
+	 *
 	 * @param msg the message to be displayed
 	 */
 	public static void popUpError(String msg) {
