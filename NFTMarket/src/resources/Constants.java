@@ -9,6 +9,5 @@ public final class Constants {
 	
 	//Paths for views
 	public static final String SampleView = "/view/SampleView.fxml";
-	public static final String check ="try";
 
 }

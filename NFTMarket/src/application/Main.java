@@ -11,7 +11,6 @@ public class Main extends Application {
 			guiControl.openMainPage();
 
 	}
-	//david
 	public static void main(String[] args) {
 		launch(args);
 	}
