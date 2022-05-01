@@ -1,4 +1,7 @@
 package service;
+import java.io.IOException;
+
+import com.mailer.Mailer.*;
 
 public class ServiceFacade {
 	//private FileService fileService;
@@ -43,7 +46,11 @@ public class ServiceFacade {
 		//manualCollectionService.GetCollection(String CollectionName);
 	}
 	
-	public void Email() {
+	public static void Email(String to,String what) {
+		try {
+		Sender sender = Sender.GetSender();
+		sender.SendMail(to,what);
+		}catch(Exception e) {System.out.println("there was an exeption in mail service");}
 		//emailService.GetAddress(String address);
 		//emailService.GetData();
 		//emailService.SendMail();
