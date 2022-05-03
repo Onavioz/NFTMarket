@@ -8,7 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
+
 import javafx.stage.Stage;
 
 public class GUIControlService {
@@ -43,8 +44,8 @@ public class GUIControlService {
 	public void openMainPage() {
 		try {
 
-			BorderPane root = (BorderPane) FXMLLoader.load(getClass().getResource(Constants.SampleView));
-			Scene scene = new Scene(root, 800, 500);
+			AnchorPane root = (AnchorPane) FXMLLoader.load(getClass().getResource(Constants.SampleView));
+			Scene scene = new Scene(root, 990, 600);
 			scene.getStylesheets().add(getClass().getResource(Constants.appCSS).toExternalForm());
 			primaryStage.setTitle(Constants.NFTMarketTitle);
 			primaryStage.setScene(scene);
