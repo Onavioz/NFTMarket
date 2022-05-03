@@ -1,7 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	
-<?import javafx.scene.layout.BorderPane?>
-	
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SampleViewModel">
-	<!-- TODO Add Nodes -->
-</BorderPane>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="990.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SampleViewModel">
+   <children>
+      <Text layoutX="210.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="NFTMarket - Top 100 Collections" textAlignment="CENTER" wrappingWidth="379.13671875">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Text>
+      <Button fx:id="SaveListBtn" layoutX="656.0" layoutY="72.0" mnemonicParsing="false" onAction="#SaveListBtn" text="Save List">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Button>
+      <Button fx:id="UploadListBtn" layoutX="656.0" layoutY="112.0" mnemonicParsing="false" onAction="#UploadListBtn" text="Upload List">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Button>
+      <TextField fx:id="SearchTextBox" layoutX="215.0" layoutY="164.0" promptText="Search Collection" />
+      <Button fx:id="SearchBtn" layoutX="380.0" layoutY="164.0" mnemonicParsing="false" onAction="#SearchBtn" text="Search" />
+      <ComboBox fx:id="NumOfEntries" layoutX="39.0" layoutY="164.0" onAction="#SaveChosenEntriesNum" prefWidth="150.0" promptText="Number Of Entries" />
+      <Pagination fx:id="pagination" layoutX="37.0" layoutY="197.0" maxPageIndicatorCount="5" pageCount="25" prefHeight="379.0" prefWidth="496.0" />
+      <TableView fx:id="CollectionTable" layoutX="38.0" layoutY="200.0" prefHeight="269.0" prefWidth="496.0" />
+      <Button fx:id="RefreshBtn" layoutX="445.0" layoutY="164.0" mnemonicParsing="false" onAction="#RefreshTableBtn" text="Refresh Table" />
+      <Text layoutX="607.0" layoutY="182.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Add New Collection">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Text>
+      <TextField fx:id="NewCollectionName" alignment="TOP_CENTER" layoutX="599.0" layoutY="200.0" promptText="Name" />
+      <TextField fx:id="NewCurrName" alignment="TOP_CENTER" layoutX="599.0" layoutY="250.0" promptText="Curr" />
+      <Button fx:id="AddCollectionBtn" layoutX="624.0" layoutY="300.0" mnemonicParsing="false" onAction="#AddNewCollectionBtn" prefHeight="29.0" prefWidth="100.0" text="Add Collection" />
+      <Text layoutX="558.0" layoutY="416.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Refresh collection floor price every">
+         <font>
+            <Font size="15.0" />
+         </font></Text>
+      <TextField fx:id="MinToRefreshText" layoutX="796.0" layoutY="399.0" prefHeight="25.0" prefWidth="75.0" promptText="In Minutes" />
+      <Button fx:id="SaveRefMinBtn" layoutX="886.0" layoutY="398.0" mnemonicParsing="false" onAction="#SaveRefMin" text="Save">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Button>
+      <Text layoutX="558.0" layoutY="452.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Check if need to send email every">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Text>
+      <TextField fx:id="MinToCheckEmailTxt" layoutX="796.0" layoutY="437.0" prefHeight="25.0" prefWidth="75.0" promptText="In Minutes" />
+      <Button fx:id="SaveMinToCheckEmailBtn" layoutX="886.0" layoutY="435.0" mnemonicParsing="false" onAction="#SaveMinToCheckEmail" prefHeight="25.0" prefWidth="45.0" text="Save">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Button>
+      <Button fx:id="SaveEmailThresholdBtn" layoutX="887.0" layoutY="478.0" mnemonicParsing="false" onAction="#SaveEmailThreshold" text="Save">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Button>
+      <Text layoutX="558.0" layoutY="496.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Email threshold" wrappingWidth="150.00000447034836">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Text>
+      <TextField fx:id="ThresholdPercentTxt" layoutX="797.0" layoutY="480.0" prefHeight="25.0" prefWidth="75.0" promptText="In Percent" />
+      <Text layoutX="558.0" layoutY="533.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Send emails to">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Text>
+      <TextField fx:id="RecipientEmailTxt" layoutX="674.0" layoutY="514.0" prefHeight="25.0" prefWidth="198.0" promptText="Enter Recipient Email" />
+      <Button fx:id="SaveRecipientEmailBtn" layoutX="887.0" layoutY="514.0" mnemonicParsing="false" onAction="#SaveRecipientEmail" text="Save">
+         <font>
+            <Font size="13.0" />
+         </font>
+      </Button>
+      <TextField fx:id="CurrentRefreshTime" editable="false" layoutX="936.0" layoutY="400.0" prefHeight="25.0" prefWidth="45.0" promptText="0" />
+      <TextField fx:id="CurrentSendEmailTime" editable="false" layoutX="935.0" layoutY="438.0" prefHeight="25.0" prefWidth="45.0" promptText="0" />
+      <TextField fx:id="CurrentThresholdPercent" editable="false" layoutX="935.0" layoutY="480.0" prefHeight="25.0" prefWidth="45.0" promptText="0" />
+   </children>
+</AnchorPane>
