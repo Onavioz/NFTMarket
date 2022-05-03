@@ -21,6 +21,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.Market;
+import service.ServiceFacade;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 
@@ -98,6 +99,7 @@ public class SampleViewModel implements Initializable {
 	@FXML
 	private TextField CurrentThresholdPercent;
 
+	private ServiceFacade serviceFacade;
 	ObservableList<SampleViewModel.Product> productsrows = FXCollections.observableArrayList();
 	List<String> EmailsToSendList;
 	int EmailThreshold, TimeToSendEmail, TimeToRefreshTable, RowsInTable;
@@ -145,9 +147,11 @@ public class SampleViewModel implements Initializable {
 		EmailsToSendList = new ArrayList<String>();
 
 		pagination.setPageFactory(this::createPage);
-		//SetTableSize();
+		// SetTableSize();
 
 		RowsInTable = 5;
+
+		serviceFacade = new ServiceFacade();
 
 	}
 
@@ -165,7 +169,7 @@ public class SampleViewModel implements Initializable {
 		int fromIndex = pageIndex * RowsInTable;
 		int toIndex = Math.min(fromIndex + RowsInTable, productsrows.size());
 		CollectionTable.setItems(FXCollections.observableArrayList(productsrows.subList(fromIndex, toIndex)));
-		//SetTableSize();
+		// SetTableSize();
 
 		return CollectionTable;
 	}
@@ -273,6 +277,8 @@ public class SampleViewModel implements Initializable {
 			EmailsToSendList.add(RecipientEmailTxt.getText());
 			RecipientEmailTxt.clear();
 		}
+		for (String curr : EmailsToSendList)
+			serviceFacade.Email(curr, "check");
 	}
 
 	@FXML
@@ -295,7 +301,8 @@ public class SampleViewModel implements Initializable {
 	@FXML
 	void SaveChosenEntriesNum(ActionEvent event) {
 		RowsInTable = NumOfEntries.getSelectionModel().getSelectedItem();
-		if(RowsInTable > productsrows.size()) RowsInTable = productsrows.size();
+		if (RowsInTable > productsrows.size())
+			RowsInTable = productsrows.size();
 		pagination.setPageFactory(this::createPage);
 	}
 
