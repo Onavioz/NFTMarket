@@ -8,6 +8,8 @@ public class ServiceFacade {
 	// private APIService apiService;
 	// private ManualCollectionService manualCollectionService;
 	private EmailService emailService;
+	private CronJobTask cronJobTask;
+	private CronStarter cronStarter;
 
 	public ServiceFacade() {
 		// fileService = new FileService();
@@ -15,6 +17,8 @@ public class ServiceFacade {
 		// apiService = new ApiService();
 		// manualCollectionService = new ManualCollectionService();
 		emailService = new EmailService();
+		cronJobTask = new CronJobTask();
+		cronStarter = new CronStarter();
 	}
 
 	public void UploadFile() {
@@ -53,5 +57,9 @@ public class ServiceFacade {
 
 			System.out.println("Error in email service");
 		}
+	}
+	
+	public void CronJobForApi(long delayFromStart,long timeToWaitBetweenRuns) {
+		cronStarter.cronJob(cronJobTask, delayFromStart, timeToWaitBetweenRuns);
 	}
 }
