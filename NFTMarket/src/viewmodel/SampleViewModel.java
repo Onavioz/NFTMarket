@@ -4,9 +4,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
-
+import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,14 +15,13 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Pagination;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import model.Market;
+import model.Collection;
+import model.CollectionFactory;
 import service.ServiceFacade;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
 
 public class SampleViewModel implements Initializable {
 
@@ -55,7 +53,13 @@ public class SampleViewModel implements Initializable {
 	private TableColumn<SampleViewModel.Product, String> NameColumn;
 
 	@FXML
-	private TableColumn<SampleViewModel.Product, Integer> CurrCol;
+	private TableColumn<SampleViewModel.Product, String> OpenseaCol;
+
+	@FXML
+	private TableColumn<SampleViewModel.Product, String> MagicEdenCol;
+
+	@FXML
+	private TableColumn<SampleViewModel.Product, String> DiffCol;
 
 	@FXML
 	private Button RefreshBtn;
@@ -100,17 +104,32 @@ public class SampleViewModel implements Initializable {
 	private TextField CurrentThresholdPercent;
 
 	private ServiceFacade serviceFacade;
+
+	private CollectionFactory collectionFactory;
+
+	private HashMap<String, String> openSeaCollection;
+
+	private HashMap<String, String> edenCollection;
+
+	private HashMap<String, String> diffCollection;
+
+	private String[] keyArray;
+
 	ObservableList<SampleViewModel.Product> productsrows = FXCollections.observableArrayList();
 	List<String> EmailsToSendList;
 	int EmailThreshold, TimeToSendEmail, TimeToRefreshTable, RowsInTable;
 
 	public class Product {
 		String name;
-		int curr;
+		String Opensea_curr;
+		String MagicEden_curr;
+		String Diff_curr;
 
-		public Product(String name, int curr) {
+		public Product(String name, String Opensea_curr, String MagicEden_curr, String Diff_curr) {
 			this.name = name;
-			this.curr = curr;
+			this.Opensea_curr = Opensea_curr;
+			this.MagicEden_curr = MagicEden_curr;
+			this.Diff_curr = Diff_curr;
 		}
 
 		public String getName() {
@@ -121,35 +140,67 @@ public class SampleViewModel implements Initializable {
 			this.name = name;
 		}
 
-		public int getCurr() {
-			return curr;
+		public String getOpensea_curr() {
+			return Opensea_curr;
 		}
 
-		public void setCurr(int curr) {
-			this.curr = curr;
+		public void setOpensea_curr(String Opensea_curr) {
+			this.Opensea_curr = Opensea_curr;
+		}
+
+		public String getMagicEden_curr() {
+			return MagicEden_curr;
+		}
+
+		public void setMagicEden_curr(String MagicEden_curr) {
+			this.MagicEden_curr = MagicEden_curr;
+		}
+
+		public String getDiff_curr() {
+			return Diff_curr;
+		}
+
+		public void setDiff_curr(String Diff_curr) {
+			this.Diff_curr = Diff_curr;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		collectionFactory = new CollectionFactory();
+		Collection openSeaMarket = collectionFactory.createCollection("OpenSeaMarketCollection");
+		Collection edenMarket = collectionFactory.createCollection("EdenMarketCollection");
+		Collection diff = collectionFactory.createCollection("diffCollection");
+		openSeaCollection = openSeaMarket.getCollection();
+		edenCollection = edenMarket.getCollection();
+		diffCollection = diff.getCollection();
+		Set<String> keySet = openSeaCollection.keySet();
+		keyArray = keySet.toArray(new String[keySet.size()]);
+
 		NameColumn = new TableColumn("Collections Name");
 		NameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-		CurrCol = new TableColumn("Curr");
-		CurrCol.setCellValueFactory(new PropertyValueFactory<>("curr"));
+		OpenseaCol = new TableColumn("Opensea [Sol]");
+		OpenseaCol.setCellValueFactory(new PropertyValueFactory<>("Opensea_curr"));
+		MagicEdenCol = new TableColumn("Magic eden [Sol]");
+		MagicEdenCol.setCellValueFactory(new PropertyValueFactory<>("MagicEden_curr"));
+		DiffCol = new TableColumn("Diff [%]");
+		DiffCol.setCellValueFactory(new PropertyValueFactory<>("Diff_curr"));
 
 		productsrows = getProduct();
 		CollectionTable.setItems(productsrows);
-		CollectionTable.getColumns().addAll(NameColumn, CurrCol);
+		CollectionTable.getColumns().addAll(NameColumn, OpenseaCol, MagicEdenCol, DiffCol);
 
 		NumOfEntries.getItems().addAll(5, 10, 15, 20, 25);
 
 		EmailsToSendList = new ArrayList<String>();
 
 		pagination.setPageFactory(this::createPage);
+
 		// SetTableSize();
 
 		RowsInTable = 5;
+		pagination.setPageCount(openSeaCollection.size() / RowsInTable);
 
 		serviceFacade = new ServiceFacade();
 
@@ -176,22 +227,10 @@ public class SampleViewModel implements Initializable {
 
 	public ObservableList<SampleViewModel.Product> getProduct() {
 		ObservableList<SampleViewModel.Product> products = FXCollections.observableArrayList();
-		products.add(new Product("first", 1));
-		products.add(new Product("second", 2));
-		products.add(new Product("first", 1));
-		products.add(new Product("second", 2));
-		products.add(new Product("first", 1));
-		products.add(new Product("second", 2));
-		products.add(new Product("second", 2));
-		products.add(new Product("first", 1));
-		products.add(new Product("second", 2));
-		products.add(new Product("second", 2));
-		products.add(new Product("first", 1));
-		products.add(new Product("second", 2));
-		products.add(new Product("second", 2));
-		products.add(new Product("first", 1));
-		products.add(new Product("second", 2));
-
+		for (int i = 0; i < openSeaCollection.size(); i++) {
+			products.add(new Product(keyArray[i], openSeaCollection.get(keyArray[i]), edenCollection.get(keyArray[i]),
+					diffCollection.get(keyArray[i])));
+		}
 		return products;
 	}
 
@@ -199,7 +238,7 @@ public class SampleViewModel implements Initializable {
 		String searchWord = SearchTextBox.getText();
 		ObservableList<SampleViewModel.Product> FilteredtableItems = FXCollections.observableArrayList();
 		for (Product curr : productsrows) {
-			if (curr.getName().equals(searchWord))
+			if (curr.getName().contains(searchWord))
 				FilteredtableItems.add(curr);
 		}
 		if (!FilteredtableItems.isEmpty())
@@ -213,16 +252,16 @@ public class SampleViewModel implements Initializable {
 	}
 
 	public void AddNewCollectionBtn() {
-		boolean flag = true;
-		if (NewCollectionName.getText().isEmpty() || NewCurrName.getText().isEmpty())
-			flag = false;
-		if (flag) // only if both of the text field are not empty enter to add new collection
-		{
-			productsrows.add(new Product(NewCollectionName.getText(), Integer.parseInt(NewCurrName.getText())));
-			RefreshTableBtn();
-			NewCollectionName.clear();
-			NewCurrName.clear();
-		}
+//		boolean flag = true;
+//		if (NewCollectionName.getText().isEmpty() || NewCurrName.getText().isEmpty() || )
+//			flag = false;
+//		if (flag) // only if both of the text field are not empty enter to add new collection
+//		{
+//			productsrows.add(new Product(NewCollectionName.getText(), Integer.parseInt(NewCurrName.getText())));
+//			RefreshTableBtn();
+//			NewCollectionName.clear();
+//			NewCurrName.clear();
+//		}
 	}
 
 	public void SaveListBtn() {
@@ -252,6 +291,7 @@ public class SampleViewModel implements Initializable {
 
 	@FXML
 	void SaveListBtn(ActionEvent event) {
+	
 
 	}
 
@@ -304,6 +344,8 @@ public class SampleViewModel implements Initializable {
 		if (RowsInTable > productsrows.size())
 			RowsInTable = productsrows.size();
 		pagination.setPageFactory(this::createPage);
+		pagination.setPageCount(openSeaCollection.size() / RowsInTable);
+
 	}
 
 }

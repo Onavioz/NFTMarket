@@ -1,5 +1,7 @@
 package model;
 
-public interface Market {
-	void Collection();
+import java.util.HashMap;
+
+public interface Collection {
+	HashMap<String, String> getCollection();
 }

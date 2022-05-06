@@ -1,18 +1,21 @@
 package model;
 
-public class MarketFactory {
+public class CollectionFactory {
 
-	public Market createMarket(String marketName) {
-		if(marketName == null) {
+	public Collection createCollection(String collectionName) {
+		if (collectionName == null) {
 			return null;
 		}
-		if(marketName.equalsIgnoreCase("EdenMarket")) {
-			return new EdenMarketModel();
-		}
-		else if(marketName.equalsIgnoreCase("OpenSeaMarket")) {
-			return new OpenSeaMarketModel();
+		if (collectionName.equalsIgnoreCase("EdenMarketCollection")) {
+			return  EdenMarketModel.instance;
+		} 
+		else if (collectionName.equalsIgnoreCase("OpenSeaMarketCollection")) {
+			return  OpenSeaMarketModel.instance;
+		} 
+		else if (collectionName.equalsIgnoreCase("diffCollection")) {
+			return DiffCollection.instance;
 		}
 		return null;
 	}
-	
+
 }

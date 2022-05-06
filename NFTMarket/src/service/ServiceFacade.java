@@ -5,11 +5,13 @@ import java.io.IOException;
 public class ServiceFacade {
 	// private FileService fileService;
 	// private GridService gridService;
-	// private APIService apiService;
+	 private ApiService apiService;
 	// private ManualCollectionService manualCollectionService;
 	private EmailService emailService;
 	private CronJobTask cronJobTask;
 	private CronStarter cronStarter;
+	private ConvertService converter;
+	private DiffService diffService;
 
 	public ServiceFacade() {
 		// fileService = new FileService();
@@ -19,6 +21,9 @@ public class ServiceFacade {
 		emailService = new EmailService();
 		cronJobTask = new CronJobTask();
 		cronStarter = new CronStarter();
+		apiService = new ApiService();
+		converter = new ConvertService();
+		diffService = new DiffService();
 	}
 
 	public void UploadFile() {
@@ -39,9 +44,10 @@ public class ServiceFacade {
 
 	}
 
-	public void APICollection() {
-		// apiService.GetCollection(Object Instance);
-		// apiService.SetCollection();
+	public void InitializeCollection() throws IOException {
+		converter.GatherCurrency();
+		apiService.makeCollections(converter);
+		diffService.makeDiffCollection();
 	}
 
 	public void ManualCollection() {
