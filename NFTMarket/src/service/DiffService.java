@@ -15,7 +15,7 @@ public class DiffService {
 	public HashMap<String, String> GetDiffHashMap(HashMap<String, String> magiceden_data,
 			HashMap<String, String> openSea_data) {
 		HashMap<String, String> diff_result = new HashMap<String, String>();
-		;
+		
 		double MEfloor_p;
 		double OSfloor_p;
 		double result;
@@ -23,7 +23,7 @@ public class DiffService {
 		for (String key : magiceden_data.keySet()) {
 			if (openSea_data.containsKey(key)) {
 
-				if (magiceden_data.get(key).equals("N/A") || openSea_data.get(key).equals("N/A"))
+				if (magiceden_data.get(key).equals("N/A") ||magiceden_data.get(key).equals("Loading")|| openSea_data.get(key).equals("N/A")||openSea_data.get(key).equals("Loading"))
 					diff_result.put(key, "-");
 				else {
 					MEfloor_p = Double.parseDouble(magiceden_data.get(key));
@@ -40,7 +40,9 @@ public class DiffService {
 		DiffCollection diffCollection = DiffCollection.getInstance();
 		EdenMarketModel edenMarketData = EdenMarketModel.getInstance();
 		OpenSeaMarketModel openSeaMarketData = OpenSeaMarketModel.getInstance();
+		if(! edenMarketData.getCollection().isEmpty()||! openSeaMarketData.getCollection().isEmpty())
 		diffCollection.setDiff_data(GetDiffHashMap(edenMarketData.getCollection(), openSeaMarketData.getCollection()));
+		
 		
 	}
 }

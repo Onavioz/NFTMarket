@@ -2,7 +2,7 @@ package model;
 
 public class CollectionFactory {
 
-	public Collection createCollection(String collectionName) {
+	public Collection GetCollection(String collectionName) {
 		if (collectionName == null) {
 			return null;
 		}

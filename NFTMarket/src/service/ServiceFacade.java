@@ -46,8 +46,8 @@ public class ServiceFacade {
 
 	public void InitializeCollection() throws IOException {
 		converter.GatherCurrency();
-		apiService.makeCollections(converter);
-		diffService.makeDiffCollection();
+		apiService.makeCollections(converter,diffService);
+		
 	}
 
 	public void ManualCollection() {
