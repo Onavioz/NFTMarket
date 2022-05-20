@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="990.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SampleViewModel">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="990.0" xmlns="http://javafx.com/javafx/11.0.14" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SampleViewModel">
    <children>
       <Text layoutX="210.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="NFTMarket - Top 100 Collections" textAlignment="CENTER" wrappingWidth="379.13671875">
          <font>
@@ -21,25 +21,29 @@
             <Font size="13.0" />
          </font>
       </Button>
-      <Button fx:id="UploadListBtn" layoutX="656.0" layoutY="112.0" mnemonicParsing="false" onAction="#UploadListBtn" text="Upload List">
+      <Button fx:id="UploadListBtn" layoutX="739.0" layoutY="72.0" mnemonicParsing="false" onAction="#UploadListBtn" text="Upload List">
          <font>
             <Font size="13.0" />
          </font>
       </Button>
-      <TextField fx:id="SearchTextBox" layoutX="215.0" layoutY="164.0" promptText="Search Collection" />
-      <Button fx:id="SearchBtn" layoutX="380.0" layoutY="164.0" mnemonicParsing="false" onAction="#SearchBtn" text="Search" />
+      <TextField fx:id="SearchTextBox" layoutX="279.0" layoutY="164.0" promptText="Search Collection" />
+      <Button fx:id="SearchBtn" layoutX="437.0" layoutY="164.0" mnemonicParsing="false" onAction="#SearchBtn" prefHeight="13.0" prefWidth="97.0" text="Search" />
       <ComboBox fx:id="NumOfEntries" layoutX="39.0" layoutY="164.0" onAction="#SaveChosenEntriesNum" prefWidth="150.0" promptText="Number Of Entries" />
       <Pagination fx:id="pagination" layoutX="37.0" layoutY="197.0" maxPageIndicatorCount="5" pageCount="25" prefHeight="379.0" prefWidth="496.0" />
       <TableView fx:id="CollectionTable" layoutX="38.0" layoutY="200.0" prefHeight="269.0" prefWidth="496.0" />
-      <Button fx:id="RefreshBtn" layoutX="445.0" layoutY="164.0" mnemonicParsing="false" onAction="#RefreshTableBtn" text="Refresh Table" />
-      <Text layoutX="607.0" layoutY="182.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Add New Collection">
+      <Button fx:id="RefreshBtn" layoutX="39.0" layoutY="537.0" mnemonicParsing="false" onAction="#RefreshTableBtn" text="Refresh Table" />
+      <Text layoutX="566.0" layoutY="216.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Add New Collection:">
          <font>
             <Font size="15.0" />
          </font>
       </Text>
-      <TextField fx:id="NewCollectionName" alignment="TOP_CENTER" layoutX="599.0" layoutY="200.0" promptText="Name" />
-      <TextField fx:id="NewCurrName" alignment="TOP_CENTER" layoutX="599.0" layoutY="250.0" promptText="Curr" />
-      <Button fx:id="AddCollectionBtn" layoutX="624.0" layoutY="300.0" mnemonicParsing="false" onAction="#AddNewCollectionBtn" prefHeight="29.0" prefWidth="100.0" text="Add Collection" />
+      <Text fx:id="AddedCollectionText" fill="#79c49d" layoutX="722.0" layoutY="262.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="198.39999999999998">
+         <font>
+            <Font size="17.0" />
+         </font>
+      </Text>
+      <TextField fx:id="NewCollectionName" alignment="TOP_CENTER" layoutX="559.0" layoutY="243.0" promptText="Name" />
+      <Button fx:id="AddCollectionBtn" layoutX="558.0" layoutY="288.0" mnemonicParsing="false" onAction="#AddNewCollectionBtn" prefHeight="21.0" prefWidth="149.0" text="Add Collection" />
       <Text layoutX="558.0" layoutY="416.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Refresh collection floor price every">
          <font>
             <Font size="15.0" />

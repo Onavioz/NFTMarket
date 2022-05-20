@@ -2,14 +2,14 @@ package service;
 
 import java.io.IOException;
 
+import model.Product;
+
 public class ServiceFacade {
 	// private FileService fileService;
 	// private GridService gridService;
-	 private ApiService apiService;
-	// private ManualCollectionService manualCollectionService;
+	private ApiService apiService;
+	private ManualCollectionService manualCollectionService;
 	private EmailService emailService;
-	private CronJobTask cronJobTask;
-	private CronStarter cronStarter;
 	private ConvertService converter;
 	private DiffService diffService;
 
@@ -17,10 +17,8 @@ public class ServiceFacade {
 		// fileService = new FileService();
 		// gridService = new GridService();
 		// apiService = new ApiService();
-		// manualCollectionService = new ManualCollectionService();
+		manualCollectionService = new ManualCollectionService();
 		emailService = new EmailService();
-		cronJobTask = new CronJobTask();
-		cronStarter = new CronStarter();
 		apiService = new ApiService();
 		converter = new ConvertService();
 		diffService = new DiffService();
@@ -34,25 +32,14 @@ public class ServiceFacade {
 		// fileService.Save(String path);
 	}
 
-	public void Grid() {
-		// gridService.GetData();
-		// gridServie.SetData();
-		// gridService.Setentries();
-		// gridService.SetPaginator();
-		// gridService.SetSort();
-		// gridService.SetService();
-
-	}
-
 	public void InitializeCollection() throws IOException {
 		converter.GatherCurrency();
-		apiService.makeCollections(converter,diffService);
-		
+		apiService.makeCollections(converter, diffService);
 	}
 
-	public void ManualCollection() {
-		// manualCollectionService.SetCollection(String CollectionName);
-		// manualCollectionService.GetCollection(String CollectionName);
+	public Product ManualCollection(String CollectionName) {
+		manualCollectionService.AddCollection(CollectionName);
+		return manualCollectionService.GetCollection();
 	}
 
 	public void Email(String to, String what) {
@@ -63,9 +50,5 @@ public class ServiceFacade {
 
 			System.out.println("Error in email service");
 		}
-	}
-	
-	public void CronJobForApi(long delayFromStart,long timeToWaitBetweenRuns) {
-		cronStarter.cronJob(cronJobTask, delayFromStart, timeToWaitBetweenRuns);
 	}
 }

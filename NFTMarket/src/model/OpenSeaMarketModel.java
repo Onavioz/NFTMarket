@@ -27,7 +27,7 @@ public class OpenSeaMarketModel implements Collection {
 	}
 	
 	public void InitModel(ArrayList<String> collections) {
-		for(int i=0 ; i<100;i++)
+		for(int i=0 ; i<collections.size();i++)
 			openSea_data.put(collections.get(i), "Loading");
 	}
 

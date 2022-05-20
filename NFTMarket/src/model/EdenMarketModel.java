@@ -28,7 +28,7 @@ public class EdenMarketModel implements Collection {
 	}
 
 	public void InitModel(ArrayList<String> collections) {
-		for(int i=0 ; i<100;i++)
+		for(int i=0 ; i<collections.size();i++)
 			magiceden_data.put(collections.get(i), "Loading");
 	}
 

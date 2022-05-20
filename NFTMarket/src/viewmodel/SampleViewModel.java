@@ -1,8 +1,10 @@
 package viewmodel;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -20,8 +22,10 @@ import javafx.scene.control.Pagination;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 import model.Collection;
 import model.CollectionFactory;
+import model.Product;
 import service.ServiceFacade;
 import javafx.scene.control.TableView;
 
@@ -49,28 +53,25 @@ public class SampleViewModel implements Initializable {
 	private Pagination pagination;
 
 	@FXML
-	private TableView<SampleViewModel.Product> CollectionTable;
+	private TableView<Product> CollectionTable;
 
 	@FXML
-	private TableColumn<SampleViewModel.Product, String> NameColumn;
+	private TableColumn<Product, String> NameColumn;
 
 	@FXML
-	private TableColumn<SampleViewModel.Product, String> OpenseaCol;
+	private TableColumn<Product, String> OpenseaCol;
 
 	@FXML
-	private TableColumn<SampleViewModel.Product, String> MagicEdenCol;
+	private TableColumn<Product, String> MagicEdenCol;
 
 	@FXML
-	private TableColumn<SampleViewModel.Product, String> DiffCol;
+	private TableColumn<Product, String> DiffCol;
 
 	@FXML
 	private Button RefreshBtn;
 
 	@FXML
 	private TextField NewCollectionName;
-
-	@FXML
-	private TextField NewCurrName;
 
 	@FXML
 	private TextField MinToRefreshText;
@@ -103,6 +104,9 @@ public class SampleViewModel implements Initializable {
 	private TextField CurrentSendEmailTime;
 
 	@FXML
+	private Text AddedCollectionText;
+
+	@FXML
 	private TextField CurrentThresholdPercent;
 
 	private ServiceFacade serviceFacade;
@@ -110,101 +114,54 @@ public class SampleViewModel implements Initializable {
 	private CollectionFactory collectionFactory;
 
 	Collection openSeaMarket;
-	Collection edenMarket ;
+	Collection edenMarket;
 	Collection diff;
 	HashMap<String, String> openSeaCollection;
 	HashMap<String, String> edenCollection;
 	HashMap<String, String> diffCollection;
 	Set<String> keySet;
-	ArrayList<String> symbols = new ArrayList<String>();
+	Set<String> symbols = new HashSet<String>();
 	ArrayList<Product> product_list = new ArrayList<Product>();
-
-	ObservableList<SampleViewModel.Product> productsrows = FXCollections.observableArrayList();
+	ObservableList<Product> productsrows = FXCollections.observableArrayList();
+	ObservableList<Product> FilteredtableItems = FXCollections.observableArrayList();
 	List<String> EmailsToSendList;
-	int EmailThreshold, TimeToSendEmail, TimeToRefreshTable, RowsInTable;
+	int EmailThreshold, TimeToSendEmail, TimeToRefreshTable, RowsInTable, numOfItems;
 
-	public class Product {
-		String name;
-		String Opensea_curr;
-		String MagicEden_curr;
-		String Diff_curr;
-
-		public Product(String name, String Opensea_curr, String MagicEden_curr, String Diff_curr) {
-			this.name = name;
-			this.Opensea_curr = Opensea_curr;
-			this.MagicEden_curr = MagicEden_curr;
-			this.Diff_curr = Diff_curr;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getOpensea_curr() {
-			return Opensea_curr;
-		}
-
-		public void setOpensea_curr(String Opensea_curr) {
-			this.Opensea_curr = Opensea_curr;
-		}
-
-		public String getMagicEden_curr() {
-			return MagicEden_curr;
-		}
-
-		public void setMagicEden_curr(String MagicEden_curr) {
-			this.MagicEden_curr = MagicEden_curr;
-		}
-
-		public String getDiff_curr() {
-			return Diff_curr;
-		}
-
-		public void setDiff_curr(String Diff_curr) {
-			this.Diff_curr = Diff_curr;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		collectionFactory = new CollectionFactory();
+		EmailsToSendList = new ArrayList<String>();
+		serviceFacade = new ServiceFacade();
 		openSeaMarket = collectionFactory.GetCollection("OpenSeaMarketCollection");
 		edenMarket = collectionFactory.GetCollection("EdenMarketCollection");
 		diff = collectionFactory.GetCollection("diffCollection");
-		// init columns
+
+		InitializeGrid();
+		TableUpdate();
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void InitializeGrid() {
 		NameColumn = new TableColumn("Collections Name");
 		NameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+		NameColumn.prefWidthProperty().bind(CollectionTable.widthProperty().multiply(0.3));
 		OpenseaCol = new TableColumn("Opensea [Sol]");
 		OpenseaCol.setCellValueFactory(new PropertyValueFactory<>("Opensea_curr"));
+		OpenseaCol.prefWidthProperty().bind(CollectionTable.widthProperty().multiply(0.25));
 		MagicEdenCol = new TableColumn("Magic eden [Sol]");
 		MagicEdenCol.setCellValueFactory(new PropertyValueFactory<>("MagicEden_curr"));
+		MagicEdenCol.prefWidthProperty().bind(CollectionTable.widthProperty().multiply(0.25));
 		DiffCol = new TableColumn("Diff [%]");
 		DiffCol.setCellValueFactory(new PropertyValueFactory<>("Diff_curr"));
+		DiffCol.prefWidthProperty().bind(CollectionTable.widthProperty().multiply(0.2));
 
 		// set columns in table
 		CollectionTable.getColumns().addAll(NameColumn, OpenseaCol, MagicEdenCol, DiffCol);
-		//CollectionTable.setItems(productsrows);
 		// set entries for the table.
 		NumOfEntries.getItems().addAll(5, 10, 15, 20, 25);
-		TableUpdate();
-		
-
-		EmailsToSendList = new ArrayList<String>();
-
-		pagination.setPageFactory(this::createPage);
-		
-
-		// SetTableSize();
 		RowsInTable = 5;
-		pagination.setPageCount(openSeaMarket.getCollection().size() / RowsInTable);
-
-		serviceFacade = new ServiceFacade();
-
+		PaginatorRefrash();
+		FilteredtableItems = FXCollections.observableArrayList();
 	}
 
 	public void SetTableSize() {
@@ -218,47 +175,64 @@ public class SampleViewModel implements Initializable {
 	}
 
 	public Node createPage(int pageIndex) {
-		int fromIndex = pageIndex * RowsInTable;
-		int toIndex = Math.min(fromIndex + RowsInTable, productsrows.size());
-		CollectionTable.setItems(FXCollections.observableArrayList(productsrows.subList(fromIndex, toIndex)));
-		// SetTableSize();
-
+		int fromIndex, toIndex;
+		if (!FilteredtableItems.isEmpty()) {
+			fromIndex = pageIndex * RowsInTable;
+			toIndex = Math.min(fromIndex + RowsInTable, FilteredtableItems.size());
+			CollectionTable.setItems(FXCollections.observableArrayList(FilteredtableItems.subList(fromIndex, toIndex)));
+			numOfItems = FilteredtableItems.size();
+		} else {
+			fromIndex = pageIndex * RowsInTable;
+			toIndex = Math.min(fromIndex + RowsInTable, productsrows.size());
+			CollectionTable.setItems(FXCollections.observableArrayList(productsrows.subList(fromIndex, toIndex)));
+			numOfItems = productsrows.size();	
+		}
 		return CollectionTable;
 	}
 
 	public void SearchBtn() {
 		String searchWord = SearchTextBox.getText();
-		ObservableList<SampleViewModel.Product> FilteredtableItems = FXCollections.observableArrayList();
+		FilteredtableItems.clear();
 		for (Product curr : productsrows) {
-			if (curr.getName().contains(searchWord))
+			if (curr.getName().contains(searchWord) && !FilteredtableItems.contains(curr))
 				FilteredtableItems.add(curr);
 		}
 		if (!FilteredtableItems.isEmpty())
 			CollectionTable.setItems(FilteredtableItems);
-
+		PaginatorRefrash();
+		SearchTextBox.clear();
 	}
 
 	public void RefreshTableBtn() {
-		
-		CollectionTable.setItems(productsrows);
-		int pageNumber =pagination.getCurrentPageIndex();
-		CollectionTable.setItems(productsrows);
-		pagination.setPageFactory(this::createPage);
-		pagination.setCurrentPageIndex(pageNumber);
-		
+		PaginatorRefrash();
 	}
 
 	public void AddNewCollectionBtn() {
-//		boolean flag = true;
-//		if (NewCollectionName.getText().isEmpty() || NewCurrName.getText().isEmpty() || )
-//			flag = false;
-//		if (flag) // only if both of the text field are not empty enter to add new collection
-//		{
-//			productsrows.add(new Product(NewCollectionName.getText(), Integer.parseInt(NewCurrName.getText())));
-//			RefreshTableBtn();
-//			NewCollectionName.clear();
-//			NewCurrName.clear();
-//		}
+		if (!NewCollectionName.getText().isEmpty()) {
+			String collectionName = NewCollectionName.getText().toLowerCase();
+			Product newProduct = serviceFacade.ManualCollection(collectionName);
+			if (!isCollectionExistAlready(collectionName)) {
+				product_list.add(newProduct);
+				AddedCollectionText.setText(collectionName + " added succesfully");
+			}
+			NumOfEntries.getSelectionModel().getSelectedItem();
+			PaginatorRefrash();
+			NewCollectionName.clear();
+
+		}
+	}
+
+	/// checks if the new collection in the list
+	private boolean isCollectionExistAlready(String collectionName) {
+		return product_list.stream().filter(o -> o.getName().equals(collectionName)).findFirst().isPresent();
+	}
+
+	private void PaginatorRefrash() {
+		int pageNumber = pagination.getCurrentPageIndex();
+		pagination.setPageFactory(this::createPage);
+		pagination.setPageCount(numOfItems / RowsInTable);
+		pagination.setCurrentPageIndex(pageNumber);
+		CollectionTable.refresh();
 	}
 
 	public void SaveListBtn() {
@@ -339,13 +313,11 @@ public class SampleViewModel implements Initializable {
 		RowsInTable = NumOfEntries.getSelectionModel().getSelectedItem();
 		if (RowsInTable > productsrows.size())
 			RowsInTable = productsrows.size();
-		pagination.setPageFactory(this::createPage);
-		pagination.setPageCount(openSeaMarket.getCollection().size() / RowsInTable);
-
+		PaginatorRefrash();
 	}
 
-	public  void TableUpdate() {
-		int time = 20000;
+	public void TableUpdate() {
+		int time = 5000;
 		Thread thread = new Thread(new Runnable() {
 
 			@Override
@@ -355,15 +327,10 @@ public class SampleViewModel implements Initializable {
 					@Override
 					public void run() {
 						updateData();
-						keySet = openSeaCollection.keySet();
+						keySet = edenCollection.keySet();
 						symbols.addAll(keySet);
 						productsrows = getProduct();
-						CollectionTable.setItems(productsrows);
-						int paging_num=pagination.getCurrentPageIndex();
-						CollectionTable.refresh();
-						pagination.setPageFactory(getViewModelInstace()::createPage);
-						pagination.setCurrentPageIndex(paging_num);
-						
+						PaginatorRefrash();
 					}
 				};
 
@@ -385,35 +352,36 @@ public class SampleViewModel implements Initializable {
 		openSeaCollection = openSeaMarket.getCollection();
 		edenCollection = edenMarket.getCollection();
 		diffCollection = diff.getCollection();
-
 	}
 
-	public ObservableList<SampleViewModel.Product> getProduct() {
+	public ObservableList<Product> getProduct() {
 
-		ObservableList<SampleViewModel.Product> products_obs_list = FXCollections.observableArrayList();
+		ObservableList<Product> products_obs_list = FXCollections.observableArrayList();
 
 		// inserting all product names that already inserted into an array of strings.
 		ArrayList<String> curr_products = GetCurProductsNames(product_list);
+		String[] symbolList = symbols.toArray(new String[symbols.size()]);
 
 		for (int i = 0; i < edenCollection.size(); i++) {
 			// if the product is not in the list yet
 
-			if (!curr_products.contains(symbols.get(i)))
+			if (!curr_products.contains(symbolList[i]))
 
-				product_list.add(new Product(symbols.get(i), openSeaCollection.get(symbols.get(i)),
-						edenCollection.get(symbols.get(i)), diffCollection.get(symbols.get(i))));
+				product_list.add(new Product(symbolList[i], openSeaCollection.get(symbolList[i]),
+						edenCollection.get(symbolList[i]), diffCollection.get(symbolList[i])));
 
 			else {
 				// if the product already in table: update the data.
-				product_list.get(i).setOpensea_curr(openSeaCollection.get(symbols.get(i)));
-				product_list.get(i).setOpensea_curr(edenCollection.get(symbols.get(i)));
-				product_list.get(i).setOpensea_curr(diffCollection.get(symbols.get(i)));
+				if (openSeaCollection.size() == edenCollection.size()) {
+					product_list.get(i).setOpensea_curr(openSeaCollection.get(symbolList[i]));
+					product_list.get(i).setMagicEden_curr(edenCollection.get(symbolList[i]));
+					product_list.get(i).setDiff_curr(diffCollection.get(symbolList[i]));
+				}
 			}
 		}
 		// clear old data, load new data.
 		products_obs_list.clear();
 		products_obs_list.addAll(product_list);
-		product_list.clear();
 
 		return products_obs_list;
 	}
