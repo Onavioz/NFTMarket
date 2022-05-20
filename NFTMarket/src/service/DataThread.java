@@ -1,8 +1,8 @@
 package service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import model.EdenMarketModel;
@@ -10,13 +10,13 @@ import model.OpenSeaMarketModel;
 import okhttp3.OkHttpClient;
 
 public class DataThread implements Runnable {
-
 	ArrayList<String> symbols;
 	EdenMarketModel edenMarket;
 	OpenSeaMarketModel openSea;
-	OkHttpClient os_client ;
-	OkHttpClient me_client ;
-	
+	OkHttpClient os_client;
+	OkHttpClient me_client;
+	Semaphore sem = new Semaphore(1);
+
 	HashMap<String, String> magiceden_data_sub = new HashMap<String, String>();
 	HashMap<String, String> openSea_data_sub = new HashMap<String, String>();
 	HashMap<String, String> magiceden_data = new HashMap<String, String>();
@@ -34,48 +34,44 @@ public class DataThread implements Runnable {
 		openSea = OpenSeaMarketModel.getInstance();
 		os_client = new OkHttpClient().newBuilder().connectTimeout(5, TimeUnit.SECONDS)
 				.writeTimeout(5, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS).build();
-		me_client=new OkHttpClient().newBuilder().build();
-	
+		me_client = new OkHttpClient().newBuilder().build();
+
 	}
 
 	@Override
 	public void run() {
 		String ME_floor_price;
 		String OS_floor_price;
-		while (true) {
+		
+		
+		while(true){
+		flag = false;
+		finish_iterations = false;
 
-			flag = false;
-			finish_iterations = false;
-
-			try {
-				for (String symbol : symbols) {
-				ME_floor_price= converter.convertMagicEdenFormat(api.GetfloorPriceMagicEden(symbol,me_client));
+		try {
+			for (String symbol : symbols) {
+				ME_floor_price = converter.convertMagicEdenFormat(api.GetfloorPriceMagicEden(symbol, me_client));
 				magiceden_data = edenMarket.getCollection();
-				magiceden_data.put(symbol,ME_floor_price);
+				magiceden_data.put(symbol, ME_floor_price);
 				edenMarket.setMagiceden_data(magiceden_data);
-				}
-
-				for (String symbol : symbols) {
-					if (symbol.contains("_"))
-						osSymbol = symbol.replaceAll("_", "-");
-					else
-						osSymbol = symbol;
-					OS_floor_price=converter.convertOpenSeaFormat(api.GetfloorPriceOpenSea(osSymbol,os_client));
-					openSea_data = openSea.getCollection();
-					openSea_data.put(osSymbol,OS_floor_price);
-					openSea.setOpenSea_data(openSea_data);
-				}
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-			flag = true;
-			while (!finish_iterations);
+
+			for (String symb : symbols) {
+				OS_floor_price = converter.convertOpenSeaFormat(api.GetfloorPriceOpenSea(symb, os_client));
+				openSea_data = openSea.getCollection();
+				openSea_data.put(symb, OS_floor_price);
+				openSea.setOpenSea_data(openSea_data);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
+		flag = true;
+		while (!finish_iterations);
+		
+		}
 	}
-
+	
 	public boolean GetFlagStatus() {
 		return flag;
 	}
