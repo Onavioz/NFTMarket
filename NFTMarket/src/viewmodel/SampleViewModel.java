@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -125,7 +126,7 @@ public class SampleViewModel implements Initializable {
 	ObservableList<Product> productsrows = FXCollections.observableArrayList();
 	ObservableList<Product> FilteredtableItems = FXCollections.observableArrayList();
 	List<String> EmailsToSendList;
-	int EmailThreshold, TimeToSendEmail, TimeToRefreshTable, RowsInTable, numOfItems;
+	int EmailThreshold, TimeToSendEmail = 60000, TimeToRefreshTable = 10000, RowsInTable, numOfItems, counterToSendEmail = 0;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -162,6 +163,8 @@ public class SampleViewModel implements Initializable {
 		RowsInTable = 5;
 		PaginatorRefrash();
 		FilteredtableItems = FXCollections.observableArrayList();
+		CurrentRefreshTime.setText(Integer.toString(TimeToRefreshTable / 1000));
+		CurrentSendEmailTime.setText(Integer.toString(TimeToSendEmail / 1000));
 	}
 
 	public void SetTableSize() {
@@ -267,17 +270,18 @@ public class SampleViewModel implements Initializable {
 
 	@FXML
 	void SaveMinToCheckEmail(ActionEvent event) {
-		int MinToCheckEmailInt;
+		int SecToCheckEmailInt;;
 		try {
-			MinToCheckEmailInt = Integer.parseInt(MinToCheckEmailTxt.getText());
+			SecToCheckEmailInt = Integer.parseInt(MinToCheckEmailTxt.getText());
 		} catch (NumberFormatException nfe) {
 			return;
 		}
 
-		if (MinToCheckEmailInt > 0) {
-			TimeToSendEmail = MinToCheckEmailInt;
-			CurrentSendEmailTime.setText(String.valueOf(TimeToSendEmail));
+		if (SecToCheckEmailInt > 0 && SecToCheckEmailInt >= (TimeToRefreshTable / 1000)) {
+			TimeToSendEmail = SecToCheckEmailInt * 1000;
+			CurrentSendEmailTime.setText(String.valueOf(SecToCheckEmailInt));
 			MinToCheckEmailTxt.clear();
+			counterToSendEmail = TimeToSendEmail / TimeToRefreshTable;
 		}
 	}
 
@@ -287,23 +291,22 @@ public class SampleViewModel implements Initializable {
 			EmailsToSendList.add(RecipientEmailTxt.getText());
 			RecipientEmailTxt.clear();
 		}
-		for (String curr : EmailsToSendList)
-			serviceFacade.Email(curr, "check");
 	}
 
 	@FXML
 	void SaveRefMin(ActionEvent event) {
-		int RefInt;
+		int getNewTimeFromUser;;
 		try {
-			RefInt = Integer.parseInt(MinToRefreshText.getText());
+			getNewTimeFromUser = Integer.parseInt(MinToRefreshText.getText());
 		} catch (NumberFormatException nfe) {
 			return;
 		}
 
-		if (RefInt > 0) {
-			TimeToRefreshTable = RefInt;
-			CurrentRefreshTime.setText(String.valueOf(TimeToRefreshTable));
+		if (getNewTimeFromUser > 0 && getNewTimeFromUser <= (TimeToSendEmail / 1000)) {
+			TimeToRefreshTable = getNewTimeFromUser * 1000;
+			CurrentRefreshTime.setText(String.valueOf(getNewTimeFromUser));
 			MinToRefreshText.clear();
+			counterToSendEmail = TimeToSendEmail / TimeToRefreshTable;
 		}
 
 	}
@@ -337,6 +340,12 @@ public class SampleViewModel implements Initializable {
 				while (true) {
 					try {
 						Thread.sleep(time);
+						if (counterToSendEmail > 0)
+							counterToSendEmail--;
+						if (counterToSendEmail == 0) {
+							counterToSendEmail = TimeToSendEmail / TimeToRefreshTable;
+							SendMails();
+						}
 					} catch (InterruptedException ex) {
 					}
 					Platform.runLater(updater);
@@ -396,5 +405,38 @@ public class SampleViewModel implements Initializable {
 
 	public SampleViewModel getViewModelInstace() {
 		return this;
+	}
+	
+	public void SendMails() {
+		StringBuilder MessageToEmailsInList = new StringBuilder();
+		MessageToEmailsInList.append("");
+		if (!EmailsToSendList.isEmpty()) {
+			for (String curr : diffCollection.values()) {
+				try {
+					if (Float.parseFloat(curr) >= EmailThreshold) {
+						MessageToEmailsInList.append("Collection Name : ");
+						String currentName = getKey(diffCollection, curr);
+						MessageToEmailsInList.append(currentName + ", ");
+						MessageToEmailsInList.append("OpenSea : ");
+						MessageToEmailsInList.append(openSeaCollection.get(currentName) + ", ");
+						MessageToEmailsInList.append("MagicEden : ");
+						MessageToEmailsInList.append(edenCollection.get(currentName) + ", Diff[%] : " + curr + "\n");
+					}
+				} catch (NumberFormatException e) {
+
+				}
+			}
+			for (String curr : EmailsToSendList)
+				serviceFacade.Email(curr, MessageToEmailsInList.toString());
+		}
+	}
+
+	public <K, V> K getKey(Map<K, V> map, V value) {
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			if (value.equals(entry.getValue())) {
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 }
