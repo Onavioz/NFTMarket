@@ -151,8 +151,8 @@ public class ApiService {
 			ArrayList<Runnable> thread_data = new ArrayList<Runnable>();
 			ArrayList<Thread> threads_list = new ArrayList<Thread>();
 			ArrayList<Boolean> flags;
-			int num_of_threads =10;
-			int size_of_subCollection=10;
+			int num_of_threads =2;
+			int size_of_subCollection=50;
 			ArrayList<String> collections;
 			
 

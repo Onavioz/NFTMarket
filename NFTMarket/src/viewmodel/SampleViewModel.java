@@ -262,7 +262,7 @@ public class SampleViewModel implements Initializable {
 	}
 
 	public void SaveListBtn() {
-
+		serviceFacade.SaveFile(productsrows);
 	}
 
 	public void UploadListBtn() {
@@ -345,7 +345,7 @@ public class SampleViewModel implements Initializable {
 	}
 
 	public  void TableUpdate() {
-		int time = 20000;
+		int time = 5000;
 		Thread thread = new Thread(new Runnable() {
 
 			@Override
