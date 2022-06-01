@@ -17,7 +17,7 @@ public class FileService {
 			ArrayList<Product> productList=uploadList("collections", rawPerPage, 4);
 			return productList;
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Upload process faild, possibly because Excel file already opened");
 		}
 		return null;
 
@@ -53,7 +53,7 @@ public class FileService {
 			workbook.save("collections.xlsx");
 			System.out.println(("Exported data to excel."));
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Save process faild, possibly because Excel file already opened");
 		}
 	}
 
