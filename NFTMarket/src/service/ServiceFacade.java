@@ -1,12 +1,12 @@
 package service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import model.Product;
 
 public class ServiceFacade {
-	// private FileService fileService;
-	// private GridService gridService;
+    private FileService fileService;
 	private ApiService apiService;
 	private ManualCollectionService manualCollectionService;
 	private EmailService emailService;
@@ -14,9 +14,7 @@ public class ServiceFacade {
 	private DiffService diffService;
 
 	public ServiceFacade() {
-		// fileService = new FileService();
-		// gridService = new GridService();
-		// apiService = new ApiService();
+		 fileService = new FileService();
 		manualCollectionService = new ManualCollectionService();
 		emailService = new EmailService();
 		apiService = new ApiService();
@@ -24,12 +22,13 @@ public class ServiceFacade {
 		diffService = new DiffService();
 	}
 
-	public void UploadFile() {
-		// fileService.Upload(String path);
+	public ArrayList<Product> UploadFile() {
+		ArrayList<Product> productList = fileService.Upload();
+		 return productList;
 	}
 
-	public void SaveFile() {
-		// fileService.Save(String path);
+	public void SaveFile(ArrayList<Product> product_list) {
+		 fileService.Save(product_list);
 	}
 
 	public void InitializeCollection() throws IOException {

@@ -127,7 +127,6 @@ public class SampleViewModel implements Initializable {
 	ObservableList<Product> FilteredtableItems = FXCollections.observableArrayList();
 	List<String> EmailsToSendList;
 	int EmailThreshold, TimeToSendEmail = 60000, TimeToRefreshTable = 10000, RowsInTable, numOfItems, counterToSendEmail = 0;
-
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		collectionFactory = new CollectionFactory();
@@ -168,10 +167,6 @@ public class SampleViewModel implements Initializable {
 	}
 
 	public void SetTableSize() {
-		/*
-		 * CollectionTable.setPrefHeight(269); CollectionTable.setMaxHeight(269);
-		 * CollectionTable.setPrefWidth(496); CollectionTable.setMaxWidth(496);
-		 */
 		CollectionTable.setLayoutX(38);
 		CollectionTable.setLayoutY(200);
 		CollectionTable.setPrefSize(496, 269);
@@ -215,7 +210,7 @@ public class SampleViewModel implements Initializable {
 			String collectionName = NewCollectionName.getText().toLowerCase();
 			Product newProduct = serviceFacade.ManualCollection(collectionName);
 			if (!isCollectionExistAlready(collectionName)) {
-				product_list.add(newProduct);
+				productsrows.add(newProduct);
 				AddedCollectionText.setText(collectionName + " added succesfully");
 			}
 			NumOfEntries.getSelectionModel().getSelectedItem();
@@ -238,12 +233,19 @@ public class SampleViewModel implements Initializable {
 		CollectionTable.refresh();
 	}
 
-	public void SaveListBtn() {
-
+	@FXML
+	public void SaveListBtn(ActionEvent event) {
+		serviceFacade.SaveFile(product_list);
 	}
 
-	public void UploadListBtn() {
-
+	@FXML
+	public void UploadListBtn(ActionEvent event) {
+		ArrayList<Product> uploadedList =serviceFacade.UploadFile();
+		ObservableList<Product> products_obs_list = FXCollections.observableArrayList();
+		products_obs_list.addAll(uploadedList);
+		product_list = uploadedList;
+		productsrows = products_obs_list;
+		PaginatorRefrash();
 	}
 
 	@FXML
@@ -260,11 +262,6 @@ public class SampleViewModel implements Initializable {
 			CurrentThresholdPercent.setText(String.valueOf(EmailThreshold));
 			ThresholdPercentTxt.clear();
 		}
-
-	}
-
-	@FXML
-	void SaveListBtn(ActionEvent event) {
 
 	}
 
@@ -295,7 +292,7 @@ public class SampleViewModel implements Initializable {
 
 	@FXML
 	void SaveRefMin(ActionEvent event) {
-		int getNewTimeFromUser;;
+		int getNewTimeFromUser;
 		try {
 			getNewTimeFromUser = Integer.parseInt(MinToRefreshText.getText());
 		} catch (NumberFormatException nfe) {
@@ -318,9 +315,12 @@ public class SampleViewModel implements Initializable {
 			RowsInTable = productsrows.size();
 		PaginatorRefrash();
 	}
+	
+//	private int getCurrTimeRefresh() {
+//		return TimeToRefreshTable;
+//	}
 
 	public void TableUpdate() {
-		int time = 5000;
 		Thread thread = new Thread(new Runnable() {
 
 			@Override
@@ -332,14 +332,14 @@ public class SampleViewModel implements Initializable {
 						updateData();
 						keySet = edenCollection.keySet();
 						symbols.addAll(keySet);
-						productsrows = getProduct();
+						productsrows = getProduct();			
 						PaginatorRefrash();
 					}
 				};
 
 				while (true) {
 					try {
-						Thread.sleep(time);
+						Thread.sleep(TimeToRefreshTable);
 						if (counterToSendEmail > 0)
 							counterToSendEmail--;
 						if (counterToSendEmail == 0) {
