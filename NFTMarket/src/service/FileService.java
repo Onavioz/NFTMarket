@@ -8,7 +8,7 @@ import com.aspose.cells.Worksheet;
 
 
 public class FileService {
-	int rawPerPage = 10;
+	int rawPerPage = 2500;
 
 	
 	public ArrayList<Product> Upload() {

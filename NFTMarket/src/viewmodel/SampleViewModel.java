@@ -1,8 +1,11 @@
 package viewmodel;
 
-import java.io.IOException;
+import java.io.File;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
@@ -28,7 +32,6 @@ import model.Collection;
 import model.CollectionFactory;
 import model.Product;
 import service.ServiceFacade;
-import javafx.scene.control.TableView;
 
 public class SampleViewModel implements Initializable {
 
@@ -123,9 +126,11 @@ public class SampleViewModel implements Initializable {
 	Set<String> keySet;
 	Set<String> symbols = new HashSet<String>();
 	ArrayList<Product> product_list = new ArrayList<Product>();
+	ArrayList<Product> addition_product_list = new ArrayList<Product>();
 	ObservableList<Product> productsrows = FXCollections.observableArrayList();
 	ObservableList<Product> FilteredtableItems = FXCollections.observableArrayList();
 	List<String> EmailsToSendList;
+	boolean isUploaded=false;
 	int EmailThreshold, TimeToSendEmail = 60000, TimeToRefreshTable = 10000, RowsInTable, numOfItems, counterToSendEmail = 0;
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -164,6 +169,8 @@ public class SampleViewModel implements Initializable {
 		FilteredtableItems = FXCollections.observableArrayList();
 		CurrentRefreshTime.setText(Integer.toString(TimeToRefreshTable / 1000));
 		CurrentSendEmailTime.setText(Integer.toString(TimeToSendEmail / 1000));
+		
+	
 	}
 
 	public void SetTableSize() {
@@ -210,7 +217,7 @@ public class SampleViewModel implements Initializable {
 			String collectionName = NewCollectionName.getText().toLowerCase();
 			Product newProduct = serviceFacade.ManualCollection(collectionName);
 			if (!isCollectionExistAlready(collectionName)) {
-				productsrows.add(newProduct);
+				addition_product_list.add(newProduct);
 				AddedCollectionText.setText(collectionName + " added succesfully");
 			}
 			NumOfEntries.getSelectionModel().getSelectedItem();
@@ -227,25 +234,53 @@ public class SampleViewModel implements Initializable {
 
 	private void PaginatorRefrash() {
 		int pageNumber = pagination.getCurrentPageIndex();
+		if(productsrows.isEmpty())
+			pagination.setDisable(true);
+		else
+			pagination.setDisable(false);
 		pagination.setPageFactory(this::createPage);
 		pagination.setPageCount(numOfItems / RowsInTable);
 		pagination.setCurrentPageIndex(pageNumber);
-		CollectionTable.refresh();
+		CollectionTable.refresh();	
 	}
 
 	@FXML
 	public void SaveListBtn(ActionEvent event) {
 		serviceFacade.SaveFile(product_list);
+		AddedCollectionText.setText(" Table data has been saved succesfully");
 	}
 
 	@FXML
 	public void UploadListBtn(ActionEvent event) {
+		Path root = FileSystems.getDefault().getPath("").toAbsolutePath();
+		File tempFile = new File(root+"/collections.xlsx");
+		boolean exists =tempFile.exists();
+		keySet = edenCollection.keySet();
+		symbols.addAll(keySet);
+		
+		if(exists) {
+		isUploaded=true;
+		UploadListBtn.setDisable(false);
 		ArrayList<Product> uploadedList =serviceFacade.UploadFile();
-		ObservableList<Product> products_obs_list = FXCollections.observableArrayList();
-		products_obs_list.addAll(uploadedList);
-		product_list = uploadedList;
-		productsrows = products_obs_list;
+		ArrayList<String> curr_product_symbols = GetCurProductsNames(product_list);
+		//fix the probelm here! <-----------------------------
+		String[] symbolList = symbols.toArray(new String[symbols.size()]);
+		int index=0;
+		
+		for(Product prod: uploadedList) {
+			if(curr_product_symbols.contains(prod.getName())) {
+				index= Arrays.asList(symbolList).indexOf(prod.getName());
+				product_list.get(index).setOpensea_curr(openSeaCollection.get(symbolList[index]));
+				product_list.get(index).setMagicEden_curr(edenCollection.get(symbolList[index]));
+				product_list.get(index).setDiff_curr(diffCollection.get(symbolList[index]));
+			}
+			else
+				if(!keySet.contains(prod.getName()))
+					addition_product_list.add(prod);
+		}
+		AddedCollectionText.setText(" Table data has been uploaded succesfully");
 		PaginatorRefrash();
+		}
 	}
 
 	@FXML
@@ -267,7 +302,7 @@ public class SampleViewModel implements Initializable {
 
 	@FXML
 	void SaveMinToCheckEmail(ActionEvent event) {
-		int SecToCheckEmailInt;;
+		int SecToCheckEmailInt;
 		try {
 			SecToCheckEmailInt = Integer.parseInt(MinToCheckEmailTxt.getText());
 		} catch (NumberFormatException nfe) {
@@ -332,7 +367,7 @@ public class SampleViewModel implements Initializable {
 						updateData();
 						keySet = edenCollection.keySet();
 						symbols.addAll(keySet);
-						productsrows = getProduct();			
+						productsrows = getProduct();
 						PaginatorRefrash();
 					}
 				};
@@ -364,13 +399,13 @@ public class SampleViewModel implements Initializable {
 	}
 
 	public ObservableList<Product> getProduct() {
-
 		ObservableList<Product> products_obs_list = FXCollections.observableArrayList();
-
+		if(!isUploaded){
+			
 		// inserting all product names that already inserted into an array of strings.
 		ArrayList<String> curr_products = GetCurProductsNames(product_list);
 		String[] symbolList = symbols.toArray(new String[symbols.size()]);
-
+		
 		for (int i = 0; i < edenCollection.size(); i++) {
 			// if the product is not in the list yet
 
@@ -390,8 +425,14 @@ public class SampleViewModel implements Initializable {
 		}
 		// clear old data, load new data.
 		products_obs_list.clear();
+		product_list.addAll(addition_product_list);
+		addition_product_list.clear();
+		}
+		else {
+			product_list.clear();
+			product_list.addAll(addition_product_list);
+		}
 		products_obs_list.addAll(product_list);
-
 		return products_obs_list;
 	}
 

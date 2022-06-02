@@ -37,7 +37,7 @@ public class ApiService {
 		OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(10, TimeUnit.SECONDS)
 				.writeTimeout(10, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build();
 		Request request = new Request.Builder()
-				.url("https://api-mainnet.magiceden.dev/v2/collections?offset=400&limit=10").method("GET", null)
+				.url("https://api-mainnet.magiceden.dev/v2/collections?offset=400&limit=100").method("GET", null)
 				.build();
 
 		Response response = client.newCall(request).execute();
@@ -149,8 +149,8 @@ public class ApiService {
 		DiffService diff_service;
 		boolean allEnded = false;
 		ArrayList<Runnable> thread_data;
-		int num_of_threads = 2;
-		int size_of_subCollection = 5;
+		int num_of_threads = 4;
+		int size_of_subCollection = 25;
 		DataThread[] dataThreadList = new DataThread[num_of_threads];
 
 		ApiThread(ConvertService converter, DiffService diff_service) {
