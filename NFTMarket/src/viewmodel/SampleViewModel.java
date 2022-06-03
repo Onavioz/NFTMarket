@@ -126,6 +126,7 @@ public class SampleViewModel implements Initializable {
 	Set<String> keySet;
 	Set<String> symbols = new HashSet<String>();
 	ArrayList<Product> product_list = new ArrayList<Product>();
+	ArrayList<Product> uploadedList= new ArrayList<Product>();
 	ArrayList<Product> addition_product_list = new ArrayList<Product>();
 	ObservableList<Product> productsrows = FXCollections.observableArrayList();
 	ObservableList<Product> FilteredtableItems = FXCollections.observableArrayList();
@@ -239,7 +240,10 @@ public class SampleViewModel implements Initializable {
 		else
 			pagination.setDisable(false);
 		pagination.setPageFactory(this::createPage);
+		if(numOfItems % RowsInTable ==0)
 		pagination.setPageCount(numOfItems / RowsInTable);
+		else
+			pagination.setPageCount((numOfItems / RowsInTable)+1);
 		pagination.setCurrentPageIndex(pageNumber);
 		CollectionTable.refresh();	
 	}
@@ -255,31 +259,11 @@ public class SampleViewModel implements Initializable {
 		Path root = FileSystems.getDefault().getPath("").toAbsolutePath();
 		File tempFile = new File(root+"/collections.xlsx");
 		boolean exists =tempFile.exists();
-		keySet = edenCollection.keySet();
-		symbols.addAll(keySet);
-		
 		if(exists) {
+		uploadedList =serviceFacade.UploadFile();
 		isUploaded=true;
 		UploadListBtn.setDisable(false);
-		ArrayList<Product> uploadedList =serviceFacade.UploadFile();
-		ArrayList<String> curr_product_symbols = GetCurProductsNames(product_list);
-		//fix the probelm here! <-----------------------------
-		String[] symbolList = symbols.toArray(new String[symbols.size()]);
-		int index=0;
-		
-		for(Product prod: uploadedList) {
-			if(curr_product_symbols.contains(prod.getName())) {
-				index= Arrays.asList(symbolList).indexOf(prod.getName());
-				product_list.get(index).setOpensea_curr(openSeaCollection.get(symbolList[index]));
-				product_list.get(index).setMagicEden_curr(edenCollection.get(symbolList[index]));
-				product_list.get(index).setDiff_curr(diffCollection.get(symbolList[index]));
-			}
-			else
-				if(!keySet.contains(prod.getName()))
-					addition_product_list.add(prod);
-		}
 		AddedCollectionText.setText(" Table data has been uploaded succesfully");
-		PaginatorRefrash();
 		}
 	}
 
@@ -367,7 +351,10 @@ public class SampleViewModel implements Initializable {
 						updateData();
 						keySet = edenCollection.keySet();
 						symbols.addAll(keySet);
-						productsrows = getProduct();
+						if(isUploaded)
+							productsrows=getUploadedProduct();
+						else
+							productsrows = getProduct();
 						PaginatorRefrash();
 					}
 				};
@@ -400,8 +387,6 @@ public class SampleViewModel implements Initializable {
 
 	public ObservableList<Product> getProduct() {
 		ObservableList<Product> products_obs_list = FXCollections.observableArrayList();
-		if(!isUploaded){
-			
 		// inserting all product names that already inserted into an array of strings.
 		ArrayList<String> curr_products = GetCurProductsNames(product_list);
 		String[] symbolList = symbols.toArray(new String[symbols.size()]);
@@ -424,15 +409,35 @@ public class SampleViewModel implements Initializable {
 			}
 		}
 		// clear old data, load new data.
-		products_obs_list.clear();
 		product_list.addAll(addition_product_list);
 		addition_product_list.clear();
-		}
-		else {
-			product_list.clear();
-			product_list.addAll(addition_product_list);
-		}
+		
 		products_obs_list.addAll(product_list);
+		return products_obs_list;
+	}
+	
+	public ObservableList<Product> getUploadedProduct(){
+		ObservableList<Product> products_obs_list = FXCollections.observableArrayList();
+		ArrayList<String> curr_product_symbols = GetCurProductsNames(uploadedList);
+		String[] symbolList = symbols.toArray(new String[symbols.size()]);
+
+		int indexupdated=0;
+		int index_api=0;
+		
+	
+		for(String symbol: curr_product_symbols) {
+			if(symbols.contains(symbol)) {
+				indexupdated= curr_product_symbols.indexOf(symbol);
+				index_api = Arrays.asList(symbolList).indexOf(symbol);
+				uploadedList.get(indexupdated).setOpensea_curr(openSeaCollection.get(symbolList[index_api]));
+				uploadedList.get(indexupdated).setMagicEden_curr(edenCollection.get(symbolList[index_api]));
+				uploadedList.get(indexupdated).setDiff_curr(diffCollection.get(symbolList[index_api]));
+			}
+		}
+		products_obs_list.clear();
+		uploadedList.addAll(addition_product_list);
+		addition_product_list.clear();
+		products_obs_list.addAll(uploadedList);
 		return products_obs_list;
 	}
 

@@ -149,8 +149,8 @@ public class ApiService {
 		DiffService diff_service;
 		boolean allEnded = false;
 		ArrayList<Runnable> thread_data;
-		int num_of_threads = 4;
-		int size_of_subCollection = 25;
+		int num_of_threads = 2;
+		int size_of_subCollection = 50;
 		DataThread[] dataThreadList = new DataThread[num_of_threads];
 
 		ApiThread(ConvertService converter, DiffService diff_service) {
