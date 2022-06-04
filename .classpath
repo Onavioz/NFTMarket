@@ -15,6 +15,6 @@
 	<classpathentry kind="lib" path="okio-2.2.2.jar"/>
 	<classpathentry kind="lib" path="aspose-cells-22.4.jar"/>
 	<classpathentry kind="lib" path="aspose-gridweb-22.4.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
