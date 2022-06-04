@@ -27,6 +27,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import model.Collection;
 import model.CollectionFactory;
@@ -126,13 +127,15 @@ public class SampleViewModel implements Initializable {
 	Set<String> keySet;
 	Set<String> symbols = new HashSet<String>();
 	ArrayList<Product> product_list = new ArrayList<Product>();
-	ArrayList<Product> uploadedList= new ArrayList<Product>();
+	ArrayList<Product> uploadedList = new ArrayList<Product>();
 	ArrayList<Product> addition_product_list = new ArrayList<Product>();
 	ObservableList<Product> productsrows = FXCollections.observableArrayList();
 	ObservableList<Product> FilteredtableItems = FXCollections.observableArrayList();
 	List<String> EmailsToSendList;
-	boolean isUploaded=false;
-	int EmailThreshold, TimeToSendEmail = 60000, TimeToRefreshTable = 10000, RowsInTable, numOfItems, counterToSendEmail = 0;
+	boolean isUploaded = false;
+	int EmailThreshold, TimeToSendEmail = 60000, TimeToRefreshTable = 10000, RowsInTable, numOfItems,
+			counterToSendEmail = 0;
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		collectionFactory = new CollectionFactory();
@@ -170,8 +173,7 @@ public class SampleViewModel implements Initializable {
 		FilteredtableItems = FXCollections.observableArrayList();
 		CurrentRefreshTime.setText(Integer.toString(TimeToRefreshTable / 1000));
 		CurrentSendEmailTime.setText(Integer.toString(TimeToSendEmail / 1000));
-		
-	
+
 	}
 
 	public void SetTableSize() {
@@ -191,7 +193,7 @@ public class SampleViewModel implements Initializable {
 			fromIndex = pageIndex * RowsInTable;
 			toIndex = Math.min(fromIndex + RowsInTable, productsrows.size());
 			CollectionTable.setItems(FXCollections.observableArrayList(productsrows.subList(fromIndex, toIndex)));
-			numOfItems = productsrows.size();	
+			numOfItems = productsrows.size();
 		}
 		return CollectionTable;
 	}
@@ -219,6 +221,7 @@ public class SampleViewModel implements Initializable {
 			Product newProduct = serviceFacade.ManualCollection(collectionName);
 			if (!isCollectionExistAlready(collectionName)) {
 				addition_product_list.add(newProduct);
+				AddedCollectionText.setFill(Paint.valueOf("#79c49d"));
 				AddedCollectionText.setText(collectionName + " added succesfully");
 			}
 			NumOfEntries.getSelectionModel().getSelectedItem();
@@ -235,35 +238,47 @@ public class SampleViewModel implements Initializable {
 
 	private void PaginatorRefrash() {
 		int pageNumber = pagination.getCurrentPageIndex();
-		if(productsrows.isEmpty())
+		if (productsrows.isEmpty())
 			pagination.setDisable(true);
 		else
 			pagination.setDisable(false);
 		pagination.setPageFactory(this::createPage);
-		if(numOfItems % RowsInTable ==0)
-		pagination.setPageCount(numOfItems / RowsInTable);
+		if (numOfItems % RowsInTable == 0)
+			pagination.setPageCount(numOfItems / RowsInTable);
 		else
-			pagination.setPageCount((numOfItems / RowsInTable)+1);
+			pagination.setPageCount((numOfItems / RowsInTable) + 1);
 		pagination.setCurrentPageIndex(pageNumber);
-		CollectionTable.refresh();	
+		CollectionTable.refresh();
 	}
 
 	@FXML
 	public void SaveListBtn(ActionEvent event) {
-		serviceFacade.SaveFile(product_list);
-		AddedCollectionText.setText(" Table data has been saved succesfully");
+		if (!productsrows.isEmpty())
+		{
+			serviceFacade.SaveFile(product_list);
+			AddedCollectionText.setFill(Paint.valueOf("#79c49d"));
+			AddedCollectionText.setText(" Table data has been saved succesfully");
+		}
+		else {
+			AddedCollectionText.setFill(Paint.valueOf("#f21d15"));
+			AddedCollectionText.setText("Please wait until data is loaded");
+		}
 	}
 
 	@FXML
 	public void UploadListBtn(ActionEvent event) {
 		Path root = FileSystems.getDefault().getPath("").toAbsolutePath();
-		File tempFile = new File(root+"/collections.xlsx");
-		boolean exists =tempFile.exists();
-		if(exists) {
-		uploadedList =serviceFacade.UploadFile();
-		isUploaded=true;
-		UploadListBtn.setDisable(false);
-		AddedCollectionText.setText(" Table data has been uploaded succesfully");
+		File tempFile = new File(root + "/collections.xlsx");
+		boolean exists = tempFile.exists();
+		if (exists) {
+			uploadedList = serviceFacade.UploadFile();
+			isUploaded = true;
+			UploadListBtn.setDisable(false);
+			AddedCollectionText.setFill(Paint.valueOf("#79c49d"));
+			AddedCollectionText.setText(" Table data has been uploaded succesfully");
+		} else {
+			AddedCollectionText.setFill(Paint.valueOf("#f21d15"));
+			AddedCollectionText.setText(" 'collection' file is not found in the execution file");
 		}
 	}
 
@@ -334,10 +349,6 @@ public class SampleViewModel implements Initializable {
 			RowsInTable = productsrows.size();
 		PaginatorRefrash();
 	}
-	
-//	private int getCurrTimeRefresh() {
-//		return TimeToRefreshTable;
-//	}
 
 	public void TableUpdate() {
 		Thread thread = new Thread(new Runnable() {
@@ -351,8 +362,8 @@ public class SampleViewModel implements Initializable {
 						updateData();
 						keySet = edenCollection.keySet();
 						symbols.addAll(keySet);
-						if(isUploaded)
-							productsrows=getUploadedProduct();
+						if (isUploaded)
+							productsrows = getUploadedProduct();
 						else
 							productsrows = getProduct();
 						PaginatorRefrash();
@@ -390,7 +401,7 @@ public class SampleViewModel implements Initializable {
 		// inserting all product names that already inserted into an array of strings.
 		ArrayList<String> curr_products = GetCurProductsNames(product_list);
 		String[] symbolList = symbols.toArray(new String[symbols.size()]);
-		
+
 		for (int i = 0; i < edenCollection.size(); i++) {
 			// if the product is not in the list yet
 
@@ -411,23 +422,22 @@ public class SampleViewModel implements Initializable {
 		// clear old data, load new data.
 		product_list.addAll(addition_product_list);
 		addition_product_list.clear();
-		
+
 		products_obs_list.addAll(product_list);
 		return products_obs_list;
 	}
-	
-	public ObservableList<Product> getUploadedProduct(){
+
+	public ObservableList<Product> getUploadedProduct() {
 		ObservableList<Product> products_obs_list = FXCollections.observableArrayList();
 		ArrayList<String> curr_product_symbols = GetCurProductsNames(uploadedList);
 		String[] symbolList = symbols.toArray(new String[symbols.size()]);
 
-		int indexupdated=0;
-		int index_api=0;
-		
-	
-		for(String symbol: curr_product_symbols) {
-			if(symbols.contains(symbol)) {
-				indexupdated= curr_product_symbols.indexOf(symbol);
+		int indexupdated = 0;
+		int index_api = 0;
+
+		for (String symbol : curr_product_symbols) {
+			if (symbols.contains(symbol)) {
+				indexupdated = curr_product_symbols.indexOf(symbol);
 				index_api = Arrays.asList(symbolList).indexOf(symbol);
 				uploadedList.get(indexupdated).setOpensea_curr(openSeaCollection.get(symbolList[index_api]));
 				uploadedList.get(indexupdated).setMagicEden_curr(edenCollection.get(symbolList[index_api]));
@@ -452,7 +462,7 @@ public class SampleViewModel implements Initializable {
 	public SampleViewModel getViewModelInstace() {
 		return this;
 	}
-	
+
 	public void SendMails() {
 		StringBuilder MessageToEmailsInList = new StringBuilder();
 		MessageToEmailsInList.append("");
