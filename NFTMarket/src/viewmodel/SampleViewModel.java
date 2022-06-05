@@ -1,6 +1,8 @@
 package viewmodel;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -32,6 +34,7 @@ import javafx.scene.text.Text;
 import model.Collection;
 import model.CollectionFactory;
 import model.Product;
+import service.FileService;
 import service.ServiceFacade;
 
 public class SampleViewModel implements Initializable {
@@ -253,32 +256,31 @@ public class SampleViewModel implements Initializable {
 
 	@FXML
 	public void SaveListBtn(ActionEvent event) {
-		if (!productsrows.isEmpty())
-		{
+		if (!productsrows.isEmpty()) {
 			serviceFacade.SaveFile(product_list);
 			AddedCollectionText.setFill(Paint.valueOf("#79c49d"));
 			AddedCollectionText.setText(" Table data has been saved succesfully");
-		}
-		else {
+		} else {
 			AddedCollectionText.setFill(Paint.valueOf("#f21d15"));
 			AddedCollectionText.setText("Please wait until data is loaded");
 		}
 	}
 
 	@FXML
-	public void UploadListBtn(ActionEvent event) {
-		Path root = FileSystems.getDefault().getPath("").toAbsolutePath();
-		File tempFile = new File(root + "/collections.xlsx");
+	public void UploadListBtn(ActionEvent event) throws URISyntaxException {
+		URI root = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+		String path = Path.of(root).getParent().toString();
+		File tempFile = new File(path + "/Collections.xlsx");
 		boolean exists = tempFile.exists();
 		if (exists) {
 			uploadedList = serviceFacade.UploadFile();
 			isUploaded = true;
 			UploadListBtn.setDisable(false);
 			AddedCollectionText.setFill(Paint.valueOf("#79c49d"));
-			AddedCollectionText.setText(" Table data has been uploaded succesfully");
+			AddedCollectionText.setText(" Table data has been uploaded succesfully" );
 		} else {
 			AddedCollectionText.setFill(Paint.valueOf("#f21d15"));
-			AddedCollectionText.setText(" 'collection' file is not found in the execution file");
+			AddedCollectionText.setText(" 'collection' file is not found in the execution folder");
 		}
 	}
 

@@ -135,6 +135,7 @@ public class ApiService {
 		mainThread = new ApiThread(converter, diff_service);
 		Runnable api_main_runnable = mainThread;
 		Thread api_main_thread = new Thread(api_main_runnable);
+		api_main_thread.setDaemon(true);
 		api_main_thread.start();
 	}
 
@@ -182,8 +183,11 @@ public class ApiService {
 					threads_list.add(new Thread(thread_data.get(count)));
 					count++;
 				}
-				for (int i = 0; i < num_of_threads; i++)
+				for (int i = 0; i < num_of_threads; i++) {
+					threads_list.get(i).setDaemon(true);
 					threads_list.get(i).start();
+				}
+					
 
 				while (true) {
 					allEnded = false;
