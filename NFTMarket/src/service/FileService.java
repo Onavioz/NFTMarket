@@ -1,8 +1,13 @@
 package service;
 
 import model.Product;
+
 import java.io.FileInputStream;
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.ArrayList;
+
+import com.aspose.cells.SaveFormat;
 import com.aspose.cells.Workbook;
 import com.aspose.cells.Worksheet;
 
@@ -14,7 +19,7 @@ public class FileService {
 	public ArrayList<Product> Upload() {
 				
 		try {
-			ArrayList<Product> productList=uploadList("collections", rawPerPage, 4);
+			ArrayList<Product> productList=uploadList(rawPerPage, 4);
 			return productList;
 		} catch (Exception e) {
 			System.out.println("Upload process faild, possibly because Excel file already opened");
@@ -28,7 +33,9 @@ public class FileService {
 	}
 	
 	public static void listToExcel(ArrayList<Product> productList) {
-
+		try {
+		URI root = FileService.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+		String path = Path.of(root).getParent().toString();
 		Workbook workbook = new Workbook();
 
 		Worksheet worksheet = workbook.getWorksheets().get(0);
@@ -50,15 +57,21 @@ public class FileService {
 	
 		try {
 			worksheet.getCells().importArray(array2D, 0, 0);
-			workbook.save("collections.xlsx");
+			workbook.save(path+"/Collections.xlsx",SaveFormat.XLSX);
 			System.out.println(("Exported data to excel."));
 		} catch (Exception e) {
 			System.out.println("Save process faild, possibly because Excel file already opened");
 		}
+		} catch (Exception e1) {
+			
+			e1.printStackTrace();
+		}
 	}
 
-	public static ArrayList<Product> uploadList(String listName, int rowNum, int colNum) throws Exception {
-		FileInputStream fstream = new FileInputStream(listName + ".xlsx");
+	public static ArrayList<Product> uploadList(int rowNum, int colNum) throws Exception {
+		URI root = FileService.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+		String path = Path.of(root).getParent().toString();
+		FileInputStream fstream = new FileInputStream(path+"/Collections.xlsx");
 
 		Workbook workbook = new Workbook(fstream);
 
